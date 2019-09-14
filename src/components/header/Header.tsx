@@ -4,9 +4,6 @@ import { faHeartbeat, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Input, Modal } from '@material-ui/core';
 import './Header.css';
 import { loadingIcon } from '../../types';
-import { connect } from 'react-redux';
-import { LogUserAction } from '../../store/login-store/actions';
-import { TipoUsuario } from '../../store/login-store/actionsTypes';
 
 interface HeaderState {
     searchField: string;
@@ -15,19 +12,7 @@ interface HeaderState {
     isLoading: boolean;
 }
 
-interface HeaderProps {
-    logUserAction(login: string, tipoUsuario: TipoUsuario, nome: string | null): any;
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-    logUserAction: (
-        login: string,
-        tipoUsuario: TipoUsuario,
-        nome: string | null = null
-    ) => dispatch(LogUserAction(login, tipoUsuario, nome));
-};
-
-class Header extends React.Component<null, HeaderState, HeaderProps> {
+export default class Header extends React.Component<null, HeaderState> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -190,8 +175,3 @@ class Header extends React.Component<null, HeaderState, HeaderProps> {
         });
     };
 }
-
-export default connect(
-    null,
-    mapDispatchToProps
-)(Header);
