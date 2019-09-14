@@ -1,5 +1,7 @@
 .header {
     background-color: #24b54b;
+    height: 10vh;
+    width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -16,6 +18,9 @@
 
 .title {
     color: white;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 .icon {
@@ -28,7 +33,6 @@
 .search-bar-container {
     padding: 5px;
     width: 60%;
-    margin-right: 20%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -37,6 +41,7 @@
     flex-direction: row;
     border: 1px solid white;
     border-radius: 5px;
+    height: 60px;
 }
 
 .search-bar {
@@ -49,9 +54,9 @@
     height: 20px !important;
     width: 20px !important;
     cursor: pointer;
-    color: #CCC;
+    color: #ccc;
     transition: width 0.1s, height 0.1s;
-    margin: 0;  
+    margin: 0;
 }
 
 .search-icon:hover {
@@ -66,4 +71,99 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.login-container {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-card {
+    padding-left: 50px;
+    padding-right: 50px;
+    background-color: white;
+    height: max-content;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.modal-title {
+    margin: 25px;
+    margin-bottom: 50px;
+}
+
+.modal-field-container {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+.field-title {
+    margin-left: 0px;
+}
+
+.modal-field {
+    width: 100%;
+}
+
+.modal-buttons {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.login-button {
+    background-color: transparent;
+    color: white;
+    height: 20px;
+    width: 80%;
+    border: 1px solid white;
+    border-radius: 5px;
+    height: 60px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: white;
+    color: #24b54b;
+}
+
+.modal-button {
+    background-color: transparent;
+    color: black;
+    height: 20px;
+    width: 80%;
+    border: 1px solid black;
+    border-radius: 5px;
+    height: 60px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+    justify-self: flex-end;
+    margin: 10px;
+}
+
+.modal-button:hover {
+    background-color: black;
+    color: white;
 }
