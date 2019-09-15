@@ -33,12 +33,17 @@ export default class Marker extends React.Component<MarkerProps, any> {
                 style={{
                     width: 10,
                     height: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     borderRadius: 5,
                     backgroundColor: 'red',
                     opacity: 0.5,
                     transform: `scale(${this.props.radius})`
                 }}
-            />
+            >
+                <span style={{margin: 0, fontSize: 2.5, color: 'white'}}>{this.props.text}</span>
+            </div>
         );
     }
 }

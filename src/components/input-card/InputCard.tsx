@@ -12,10 +12,14 @@ enum TipoUsuario {
     OMS
 }
 
+interface InputCardProps {
+    setTipoDoenca(doencas: TipoDoenca[]): any;
+}
+
 interface InputCardState {
     enderecoField: string;
     enderecosCorrespondentes: LocationIqResponse[];
-    enderecoSelecionado: LocationIqResponse | {};
+    enderecoSelecionado: LocationIqResponse;
     fieldEdited: boolean;
     sugestoes: string[];
     autosuggestThemeLocal: any;
@@ -36,19 +40,22 @@ interface DoencasData {
     autosuggestTheme: any;
 }
 
-interface TipoDoenca {
+export interface TipoDoenca {
     idDoenca: number;
     nome: string;
 }
 
-export default class InputCard extends React.Component<any, InputCardState> {
+export default class InputCard extends React.Component<
+    InputCardProps,
+    InputCardState
+> {
     constructor(props: any) {
         super(props);
         this.state = {
             fieldEdited: false,
             enderecoField: '',
             enderecosCorrespondentes: [],
-            enderecoSelecionado: {},
+            enderecoSelecionado: null,
             sugestoes: [],
             autosuggestThemeLocal: {
                 input: 'autosuggest-input localizacao-input',
@@ -83,7 +90,6 @@ export default class InputCard extends React.Component<any, InputCardState> {
     componentDidMount() {
         const inputDoenca = document.querySelector('.doenca-input');
         const inputLocal = document.querySelector('.localizacao-input');
-        console.log(inputLocal);
         const attDoenca = document.createAttribute('placeholder');
         const attLocal = document.createAttribute('placeholder');
         attDoenca.value = 'Digite uma doença para cadastro';
@@ -220,11 +226,69 @@ export default class InputCard extends React.Component<any, InputCardState> {
     }
 
     sendData = () => {
-        
+        switch (this.state.tipoUsuario) {
+            case TipoUsuario.MEDICO:
+                console.log(
+                    JSON.stringify({
+                        cremers: this.state.CREMERS,
+                        id_org: null,
+                        numeroEpidemia: null,
+                        senha: this.state.senha,
+                        idDoenca: this.state.doencasData.doencaSelecionada
+                            .idDoenca,
+                        lat: this.state.enderecoSelecionado.lat,
+                        lng: this.state.enderecoSelecionado.lon
+                    })
+                );
+                fetch(routes.enviaDadosInputcard, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cremers: this.state.CREMERS,
+                        id_org: null,
+                        numeroEpidemia: null,
+                        senha: this.state.senha,
+                        idDoenca: this.state.doencasData.doencaSelecionada
+                            .idDoenca,
+                        lat: this.state.enderecoSelecionado.lat,
+                        lng: this.state.enderecoSelecionado.lon
+                    })
+                });
+                break;
+            case TipoUsuario.OMS:
+                console.log(
+                    JSON.stringify({
+                        cremers: null,
+                        id_org: this.state.id,
+                        numeroEpidemia: Number(this.state.threshold),
+                        senha: this.state.senha,
+                        idDoenca: this.state.doencasData.doencaSelecionada
+                            .idDoenca,
+                        lat: null,
+                        lng: null
+                    })
+                );
+                fetch(routes.enviaDadosInputcard, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cremers: null,
+                        id_org: this.state.id,
+                        numeroEpidemia: Number(this.state.threshold),
+                        senha: this.state.senha,
+                        idDoenca: this.state.doencasData.doencaSelecionada
+                            .idDoenca,
+                        lat: null,
+                        lng: null
+                    })
+                });
+                break;
+            default:
+                throw new Error('USER NOT DEFINED');
+        }
     };
 
     getSugestoesDoenca = (search: any) => {
-        console.log(search);
         if (
             search.reason === 'input-changed' &&
             (!search.value || search.value.length === 0)
@@ -279,7 +343,6 @@ export default class InputCard extends React.Component<any, InputCardState> {
             arraySugestoes = arraySugestoes.map(
                 (item: TipoDoenca) => item.nome
             );
-            console.log(arraySugestoes);
             this.setState({
                 ...this.state,
                 doencasData: {
@@ -299,6 +362,7 @@ export default class InputCard extends React.Component<any, InputCardState> {
         fetch(routes.getDoencas)
             .then((data) => data.json())
             .then((arrayDoencas) => {
+                this.props.setTipoDoenca(arrayDoencas);
                 this.setState({
                     ...this.state,
                     doencasData: {
@@ -314,7 +378,8 @@ export default class InputCard extends React.Component<any, InputCardState> {
 
     updateThreshold = (threshold: number) => {
         this.setState({
-            ...this.state
+            ...this.state,
+            threshold
         });
     };
 
@@ -363,6 +428,7 @@ export default class InputCard extends React.Component<any, InputCardState> {
                             placeholder='Digite sua senha'
                             onChange={this.updateSenha}
                             className='input-auth'
+                            type='password'
                         />
                     </div>
                 );

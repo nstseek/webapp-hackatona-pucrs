@@ -4,6 +4,7 @@ import './Map.css';
 import Marker from '../marker/Marker';
 import * as routes from '../../routes';
 import { loadingIcon } from '../../types';
+import { TipoDoenca } from '../input-card/InputCard';
 
 const mapsKey = {
     key: `AIzaSyByfiJMAWWpKRXV7rzbVdGpncPEcmHQsbY`,
@@ -16,30 +17,30 @@ interface MapProps {
         lat: number;
         lng: number;
     };
+    setDoencasEpidemias(doencasEpidemias: EpidemiaDoenca[]): any;
+    setMapCoords(mapCoords: any): any;
+    doencas: TipoDoenca[];
 }
 
 interface MapState {
-    epidemias: Epidemia[];
+    epidemias: EpidemiaDoenca[];
+    doencas: EpidemiaDoenca[];
     isLoading: boolean;
-}
-
-interface Epidemia {
-    epidemia: TipoEpidemia;
-    doenca: string;
     lat: number;
     lng: number;
-    radius: number;
 }
 
-enum TipoEpidemia {
-    EPIDEMIA = 0,
-    POSSIVEL_EPIDEMIA
+export interface EpidemiaDoenca {
+    id: number;
+    lat: number;
+    lng: number;
 }
 
 export default class Map extends React.Component<MapProps, MapState> {
     lat: number;
     lng: number;
     mapDidMove: boolean;
+    tempData: EpidemiaDoenca[];
 
     constructor(props: any) {
         super(props);
@@ -48,7 +49,10 @@ export default class Map extends React.Component<MapProps, MapState> {
         this.mapDidMove = true;
         this.state = {
             epidemias: [],
-            isLoading: false
+            doencas: [],
+            isLoading: false,
+            lat: this.lat,
+            lng: this.lng
         };
     }
 
@@ -57,6 +61,27 @@ export default class Map extends React.Component<MapProps, MapState> {
     };
 
     render() {
+        const MarkersEpidemias = this.state.epidemias.map(
+            (item: EpidemiaDoenca) => (
+                <Marker
+                    lat={item.lat}
+                    lng={item.lng}
+                    text={this.translateId(item)}
+                    radius={15 + Math.random()}
+                />
+            )
+        );
+        const MarkersDoencas = this.state.doencas.map(
+            (item: EpidemiaDoenca) => (
+                <Marker
+                    lat={item.lat}
+                    lng={item.lng}
+                    text={this.translateId(item)}
+                    radius={1}
+                />
+            )
+        );
+
         const loadingComponent = this.state.isLoading ? loadingIcon : '';
         return (
             <div style={{ height: '90vh', width: '100%' }}>
@@ -64,37 +89,55 @@ export default class Map extends React.Component<MapProps, MapState> {
                     bootstrapURLKeys={mapsKey}
                     defaultZoom={15}
                     defaultCenter={{ lat: this.lat, lng: this.lng }}
-                    center={{lat: this.props.mapCoords.lat, lng: this.props.mapCoords.lng}} 
+                    center={{
+                        lat: this.props.mapCoords.lat,
+                        lng: this.props.mapCoords.lng
+                    }}
                     onDrag={(map: any) => {
                         this.updateLatLng(map.center.lat(), map.center.lng());
                     }}>
-                    {/* colocar um for fudido */}
-                    <Marker
-                        lat={-30.056185}
-                        lng={-51.172118}
-                        text='num sei veio'
-                        radius={10}
-                    />
+                    {MarkersDoencas}
+                    {MarkersEpidemias}
                 </GoogleMapReact>
                 {loadingComponent}
             </div>
         );
     }
 
+    translateId = (doenca: EpidemiaDoenca): string => {
+        const result = this.props.doencas.find((tipoDoenca: TipoDoenca) => doenca.id === tipoDoenca.idDoenca);
+        return result.nome;
+    }
+
     updateLatLng = (lat: number, lng: number) => {
         this.lat = lat;
         this.lng = lng;
         this.mapDidMove = true;
+        this.setState({
+            ...this.state,
+            lat: this.lat,
+            lng: this.lng
+        });
     };
 
-    getEpidemias = async () => {
+    getEpidemias = () => {
         if (this.mapDidMove) {
+            console.log('to no epidemias');
             console.log(this.lat, this.lng);
-            this.mapDidMove = false;
-            console.log('getEpidemias chamado');
-            let result: any = await fetch(routes.epidemiaRoute);
-            // enviar this.lat e this.lng
+            this.props.setMapCoords({
+                mapCoords: { lat: this.lat, lng: this.lng }
+            });
+            fetch(routes.epidemiasRoute)
+                .then((data) => data.json())
+                .then((epidemias: EpidemiaDoenca[]) => {
+                    console.log(epidemias);
+                    this.props.setDoencasEpidemias(epidemias);
+                    this.setState({
+                        ...this.state,
+                        epidemias
+                    });
+                });
         }
-        setTimeout(this.getEpidemias, 1000);
+        setTimeout(this.getEpidemias, 5000);
     };
 }

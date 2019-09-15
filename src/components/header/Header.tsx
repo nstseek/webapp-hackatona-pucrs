@@ -10,7 +10,7 @@ import './Header.css';
 import { LocationIqResponse, LocationIqURI } from '../../types';
 import * as routes from '../../routes';
 import Autosuggest from 'react-autosuggest';
-import { AppState } from '../../App';
+import logo from '../../Logo.png';
 
 interface HeaderState {
     searchField: string;
@@ -30,7 +30,7 @@ interface HeaderState {
 }
 
 interface HeaderProps {
-    setMapCoords(mapCoords: AppState): any;
+    setMapCoords(mapCoords: any): any;
 }
 
 export default class Header extends React.Component<HeaderProps, HeaderState> {
@@ -71,8 +71,8 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
         return (
             <nav className='header'>
                 <div className='logo-container'>
-                    <FontAwesomeIcon icon={faHeartbeat} className='icon' />
-                    <span className='title'>Assistencia medica</span>
+                    <img className='logo' src={logo}/>
+                    <span className='title'>ASMEE</span>
                 </div>
                 <div className='search-bar-container'>
                     <Autosuggest
@@ -133,6 +133,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
                                     onChange={(event: any) =>
                                         this.updateSenha(event.target.value)
                                     }
+                                    type='password'
                                 />
                             </div>
                             {this.state.isLoading ? (
@@ -277,8 +278,18 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
             ...this.state,
             isLoading: true
         });
-        let result: any = await fetch(routes.epidemiaRoute);
-        // result = await result.json();
+        await fetch(routes.cadastraMedico, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                medico: {
+                    id: null,
+                    cremers: this.state.usuario.CREMERS,
+                    nome: this.state.usuario.nome,
+                    senha: this.state.usuario.senha
+                }
+            })
+        });
         this.setState({
             ...this.state,
             isLoading: false
