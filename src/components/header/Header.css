@@ -150,10 +150,10 @@
 
 .modal-button {
     background-color: transparent;
-    color: black;
+    color: #24b54b;
     height: 20px;
     width: 80%;
-    border: 1px solid black;
+    border: 1px solid #24b54b;
     border-radius: 5px;
     height: 60px;
     transition: background-color 0.3s, color 0.3s;
@@ -163,7 +163,7 @@
 }
 
 .modal-button:hover {
-    background-color: black;
+    background-color: #24b54b;
     color: white;
 }
 
@@ -204,7 +204,7 @@
 }
 
 .autosuggest-input-header::placeholder {
-    color: #CCC;
+    color: #DDD;
 }
 
 .autosuggest-suggestion {
@@ -224,4 +224,8 @@
     border: 1px solid #ccc;
     height: 240px;
     overflow-y: auto;
+}
+
+.MuiRadio-colorSecondary.Mui-checked {
+    color: green !important;
 }

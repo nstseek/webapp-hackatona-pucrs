@@ -25,6 +25,7 @@ interface InputCardState {
     senha: string;
     closed: boolean;
     doencasData: DoencasData;
+    threshold: number;
 }
 
 interface DoencasData {
@@ -50,7 +51,7 @@ export default class InputCard extends React.Component<any, InputCardState> {
             enderecoSelecionado: {},
             sugestoes: [],
             autosuggestThemeLocal: {
-                input: 'autosuggest-input',
+                input: 'autosuggest-input localizacao-input',
                 container: 'autosuggest-container',
                 suggestionsContainer: 'autosuggest-suggest-container-hide',
                 suggestion: 'autosuggest-suggestion'
@@ -66,15 +67,48 @@ export default class InputCard extends React.Component<any, InputCardState> {
                 sugestoes: [],
                 doencasField: '',
                 autosuggestTheme: {
-                    input: 'autosuggest-input',
-                    container: 'autosuggest-container autosuggest-container-doenca',
+                    input: 'autosuggest-input doenca-input',
+                    container:
+                        'autosuggest-container autosuggest-container-doenca',
                     suggestionsContainer: 'autosuggest-suggest-container-hide',
                     suggestion: 'autosuggest-suggestion'
                 }
-            }
+            },
+            threshold: 0
         };
         this.getDoencas();
         this.updateAddressList();
+    }
+
+    componentDidMount() {
+        const inputDoenca = document.querySelector('.doenca-input');
+        const inputLocal = document.querySelector('.localizacao-input');
+        console.log(inputLocal);
+        const attDoenca = document.createAttribute('placeholder');
+        const attLocal = document.createAttribute('placeholder');
+        attDoenca.value = 'Digite uma doença para cadastro';
+        attLocal.value = 'Digite sua localização';
+        if (inputDoenca) {
+            inputDoenca.setAttributeNode(attDoenca);
+        }
+        if (inputLocal) {
+            inputLocal.setAttributeNode(attLocal);
+        }
+    }
+
+    componentDidUpdate() {
+        const inputDoenca = document.querySelector('.doenca-input');
+        const inputLocal = document.querySelector('.localizacao-input');
+        const attDoenca = document.createAttribute('placeholder');
+        const attLocal = document.createAttribute('placeholder');
+        attDoenca.value = 'Digite uma doença para cadastro';
+        attLocal.value = 'Digite sua localização';
+        if (inputDoenca) {
+            inputDoenca.setAttributeNode(attDoenca);
+        }
+        if (inputLocal) {
+            inputLocal.setAttributeNode(attLocal);
+        }
     }
 
     render() {
@@ -138,25 +172,56 @@ export default class InputCard extends React.Component<any, InputCardState> {
                         />
                     </div>
                     {this.authComponent()}
-                    <span>Localização</span>
+                    {this.state.tipoUsuario === TipoUsuario.MEDICO ? (
+                        <span>Localização</span>
+                    ) : (
+                        ''
+                    )}
+                    {this.state.tipoUsuario === TipoUsuario.MEDICO ? (
+                        <Autosuggest
+                            alwaysRenderSuggestions={true}
+                            suggestions={this.state.sugestoes}
+                            onSuggestionsFetchRequested={this.fieldEdited}
+                            getSuggestionValue={(data: string) => data}
+                            renderSuggestion={(data: any) => (
+                                <span>{data}</span>
+                            )}
+                            inputProps={{
+                                value: this.state.enderecoField,
+                                onChange: this.fieldEdited
+                            }}
+                            id={'1'}
+                            theme={this.state.autosuggestThemeLocal}
+                        />
+                    ) : (
+                        ''
+                    )}
+                    <span>Doença</span>
                     <Autosuggest
                         alwaysRenderSuggestions={true}
-                        suggestions={this.state.sugestoes}
-                        onSuggestionsFetchRequested={this.fieldEdited}
+                        suggestions={this.state.doencasData.sugestoes}
+                        onSuggestionsFetchRequested={this.getSugestoesDoenca}
                         getSuggestionValue={(data: string) => data}
                         renderSuggestion={(data: any) => <span>{data}</span>}
                         inputProps={{
-                            value: this.state.enderecoField,
-                            onChange: this.fieldEdited
+                            value: this.state.doencasData.doencasField,
+                            onChange: this.getSugestoesDoenca
                         }}
                         id={'1'}
-                        theme={this.state.autosuggestThemeLocal}
+                        theme={this.state.doencasData.autosuggestTheme}
                     />
                     {this.fieldsComponent()}
+                    <button onClick={this.sendData} className='send-button'>
+                        Enviar
+                    </button>
                 </div>
             </div>
         );
     }
+
+    sendData = () => {
+        
+    };
 
     getSugestoesDoenca = (search: any) => {
         console.log(search);
@@ -247,6 +312,12 @@ export default class InputCard extends React.Component<any, InputCardState> {
             });
     };
 
+    updateThreshold = (threshold: number) => {
+        this.setState({
+            ...this.state
+        });
+    };
+
     updateUser = (user: TipoUsuario) => {
         this.setState({
             ...this.state,
@@ -257,30 +328,20 @@ export default class InputCard extends React.Component<any, InputCardState> {
     fieldsComponent = () => {
         switch (this.state.tipoUsuario) {
             case TipoUsuario.MEDICO:
+                return '';
+            case TipoUsuario.OMS:
                 return (
-                    <div>
-                        <span>Doença</span>
-                        <Autosuggest
-                            alwaysRenderSuggestions={true}
-                            suggestions={this.state.doencasData.sugestoes}
-                            onSuggestionsFetchRequested={
-                                this.getSugestoesDoenca
+                    <div className='input-field-auth'>
+                        <span>Limiar de epidemia</span>
+                        <Input
+                            placeholder='Insira o número de casos para tornar-se uma epidemia'
+                            onChange={(event: any) =>
+                                this.updateThreshold(event.target.value)
                             }
-                            getSuggestionValue={(data: string) => data}
-                            renderSuggestion={(data: any) => (
-                                <span>{data}</span>
-                            )}
-                            inputProps={{
-                                value: this.state.doencasData.doencasField,
-                                onChange: this.getSugestoesDoenca
-                            }}
-                            id={'1'}
-                            theme={this.state.doencasData.autosuggestTheme}
+                            className='input-field'
                         />
                     </div>
                 );
-            case TipoUsuario.OMS:
-                return <div />;
             default:
                 throw new Error('USER NOT DEFINED');
         }

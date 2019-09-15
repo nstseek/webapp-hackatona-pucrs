@@ -29,8 +29,14 @@
     border: 0;
     margin-top: 10px;
     font-size: 20px;
-    border-bottom: 1px solid black;
-    z-index: 1
+    border-bottom: 1px solid #777777;
+    z-index: 1;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.autosuggest-input::placeholder {
+    color: #AAA;
 }
 
 .autosuggest-suggestion {
@@ -80,6 +86,10 @@
     margin-top: 10px;
 }
 
+.input-auth:placeholder {
+    color: #CCC;
+}
+
 .radio-button-container {
     display: flex;
     flex-direction: row;
@@ -102,6 +112,23 @@
 
 .input-card-hidden {
     left: -26vw;
+}
+
+.send-button {
+    width: 100%;
+    height: 80px;
+    margin-top: 80px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: transparent;
+    color: #24b54b;
+    border: 1px solid #24b54b;
+    transition: all 0.3s;
+}
+
+.send-button:hover {
+    background-color: #24b54b;
+    color: white;
 }
 
 li {
