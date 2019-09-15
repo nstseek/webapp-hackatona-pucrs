@@ -64,6 +64,7 @@ export default class Map extends React.Component<MapProps, MapState> {
                     bootstrapURLKeys={mapsKey}
                     defaultZoom={15}
                     defaultCenter={{ lat: this.lat, lng: this.lng }}
+                    center={{lat: this.props.mapCoords.lat, lng: this.props.mapCoords.lng}} 
                     onDrag={(map: any) => {
                         this.updateLatLng(map.center.lat(), map.center.lng());
                     }}>

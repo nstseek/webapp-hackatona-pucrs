@@ -7,8 +7,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Input, Modal } from '@material-ui/core';
 import './Header.css';
-import { loadingIcon } from '../../types';
+import { LocationIqResponse, LocationIqURI } from '../../types';
 import * as routes from '../../routes';
+import Autosuggest from 'react-autosuggest';
+import { AppState } from '../../App';
 
 interface HeaderState {
     searchField: string;
@@ -19,21 +21,53 @@ interface HeaderState {
         CREMERS: string;
         senha: string;
     };
+    enderecoField: string;
+    enderecosCorrespondentes: LocationIqResponse[];
+    enderecoSelecionado: LocationIqResponse;
+    fieldEdited: boolean;
+    sugestoes: string[];
+    autosuggestThemeLocal: any;
 }
 
-export default class Header extends React.Component<any, HeaderState> {
+interface HeaderProps {
+    setMapCoords(mapCoords: AppState): any;
+}
+
+export default class Header extends React.Component<HeaderProps, HeaderState> {
     constructor(props: any) {
         super(props);
         this.state = {
             searchField: '',
             isModalOpen: false,
             isLoading: false,
-            usuario: { nome: '', CREMERS: '', senha: '' }
+            usuario: { nome: '', CREMERS: '', senha: '' },
+            fieldEdited: false,
+            enderecoField: '',
+            enderecosCorrespondentes: [],
+            enderecoSelecionado: null,
+            sugestoes: [],
+            autosuggestThemeLocal: {
+                input: 'autosuggest-input-header',
+                container: 'autosuggest-container',
+                suggestionsContainer: 'autosuggest-suggest-container-hide',
+                suggestion: 'autosuggest-suggestion'
+            }
         };
+        this.updateAddressList();
+    }
+
+    componentDidMount() {
+        const headerInput = document.querySelector(
+            '.' + this.state.autosuggestThemeLocal.input
+        );
+        const att = document.createAttribute('placeholder');
+        att.value = 'Digite um endereço';
+        if (headerInput) {
+            headerInput.setAttributeNode(att);
+        }
     }
 
     render() {
-        const loadingComponent = this.state.isLoading ? loadingIcon : '';
         return (
             <nav className='header'>
                 <div className='logo-container'>
@@ -41,12 +75,18 @@ export default class Header extends React.Component<any, HeaderState> {
                     <span className='title'>Assistencia medica</span>
                 </div>
                 <div className='search-bar-container'>
-                    <Input
-                        className='search-bar'
-                        placeholder='Digite um endereço'
-                        type='text'
-                        onChange={this.setSearchField}
-                        disableUnderline={true}
+                    <Autosuggest
+                        alwaysRenderSuggestions={true}
+                        suggestions={this.state.sugestoes}
+                        onSuggestionsFetchRequested={this.fieldEdited}
+                        getSuggestionValue={(data: string) => data}
+                        renderSuggestion={(data: any) => <span>{data}</span>}
+                        inputProps={{
+                            value: this.state.enderecoField,
+                            onChange: this.fieldEdited
+                        }}
+                        id={'1'}
+                        theme={this.state.autosuggestThemeLocal}
                     />
                     <div onClick={this.search} className='icon-container'>
                         <FontAwesomeIcon
@@ -111,10 +151,96 @@ export default class Header extends React.Component<any, HeaderState> {
                         </div>
                     </Modal>
                 </div>
-                {loadingComponent}
             </nav>
         );
     }
+
+    updateAddressList = async () => {
+        if (this.state.fieldEdited) {
+            let response: any = await fetch(
+                `${LocationIqURI(this.state.enderecoField)}`
+            );
+            response = await response.json();
+            if (!response.error) {
+                let sugestoesArray: string[] = [];
+                response.forEach((item: LocationIqResponse) => {
+                    sugestoesArray.push(item.display_name);
+                });
+                this.setState({
+                    ...this.state,
+                    enderecosCorrespondentes: response,
+                    fieldEdited: false,
+                    sugestoes: sugestoesArray
+                });
+            }
+        }
+        setTimeout(this.updateAddressList, 1000);
+    };
+
+    fieldEdited = (search: any) => {
+        if (search && search.reason === 'suggestion-selected') {
+            const selected: any = this.state.enderecosCorrespondentes.find(
+                (item: LocationIqResponse) =>
+                    !!(search.value === item.display_name)
+            );
+            this.setState({
+                ...this.state,
+                enderecoField: search.value,
+                enderecoSelecionado: selected,
+                fieldEdited: false,
+                autosuggestThemeLocal: {
+                    ...this.state.autosuggestThemeLocal,
+                    suggestionsContainer: 'autosuggest-suggest-container-hide'
+                }
+            });
+            this.props.setMapCoords({
+                mapCoords: {
+                    lat: selected.lat,
+                    lng: selected.lon
+                }
+            });
+        } else if (
+            search &&
+            search.value &&
+            search.value.length > 10 &&
+            search.reason === 'input-changed'
+        ) {
+            this.setState({
+                ...this.state,
+                enderecoField: search.value,
+                fieldEdited: true,
+                autosuggestThemeLocal: {
+                    ...this.state.autosuggestThemeLocal,
+                    suggestionsContainer: 'autosuggest-suggest-container'
+                }
+            });
+        } else if (search.value && search.value.length <= 10) {
+            this.setState({
+                ...this.state,
+                enderecoField: search.value,
+                sugestoes: [],
+                autosuggestThemeLocal: {
+                    ...this.state.autosuggestThemeLocal,
+                    suggestionsContainer: 'autosuggest-suggest-container-hide'
+                }
+            });
+        } else if (!search.value && search.reason === 'input-changed') {
+            this.setState({
+                ...this.state,
+                enderecoField: '',
+                sugestoes: [],
+                autosuggestThemeLocal: {
+                    ...this.state.autosuggestThemeLocal,
+                    suggestionsContainer: 'autosuggest-suggest-container-hide'
+                }
+            });
+        } else if (search && search.value) {
+            this.setState({
+                ...this.state,
+                enderecoField: search.value
+            });
+        }
+    };
 
     updateSenha = (senha: string) => {
         this.setState({
@@ -168,7 +294,12 @@ export default class Header extends React.Component<any, HeaderState> {
     };
 
     search = () => {
-        console.log('search clicked');
+        this.props.setMapCoords({
+            mapCoords: {
+                lat: Number(this.state.enderecoSelecionado.lat),
+                lng: Number(this.state.enderecoSelecionado.lon)
+            }
+        });
     };
 
     openModal = () => {

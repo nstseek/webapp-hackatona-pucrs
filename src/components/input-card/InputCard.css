@@ -9,8 +9,10 @@
     justify-content: flex-start;
     align-items: center;
     background-color: white;
+    border: 1px solid black;
     border-radius: 5px;
     padding: 40px;
+    transition: all 0.3s;
 }
 
 .autosuggest-container {
@@ -28,6 +30,7 @@
     margin-top: 10px;
     font-size: 20px;
     border-bottom: 1px solid black;
+    z-index: 1
 }
 
 .autosuggest-suggestion {
@@ -46,6 +49,12 @@
     border: 1px solid #CCC;
     height: 240px;
     overflow-y: auto;
+    width: 100%;
+    z-index: 5;
+}
+
+.autosuggest-container-doenca {
+    z-index: 0;
 }
 
 .input-field {
@@ -82,6 +91,17 @@
 
 .margin-top-clear {
     margin-top: 40px;
+}
+
+.arrow {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.input-card-hidden {
+    left: -26vw;
 }
 
 li {

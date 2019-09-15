@@ -2,12 +2,10 @@ import React from 'react';
 import './InputCard.css';
 import Autosuggest from 'react-autosuggest';
 import { Input, Radio } from '@material-ui/core';
-
-const LocationIqKey = `d6514e1895bd6c`;
-const LocationIqURI = (search: string) =>
-    `https://us1.locationiq.com/v1/search.php?key=${encodeURIComponent(
-        LocationIqKey
-    )}&q=${encodeURIComponent(search)}&format=json&addressdetails=1`;
+import { LocationIqResponse, LocationIqURI } from '../../types';
+import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as routes from '../../routes';
 
 enum TipoUsuario {
     MEDICO = 0,
@@ -25,22 +23,21 @@ interface InputCardState {
     CREMERS: string;
     id: string;
     senha: string;
+    closed: boolean;
+    doencasData: DoencasData;
 }
 
-interface LocationIqResponse {
-    lat: string;
-    lon: string;
-    display_name: string;
-    importante: number;
-    address: {
-        city: string;
-        country: string;
-        neighbourhood: string;
-        postcode: string;
-        road: string;
-        state: string;
-        suburb: string;
-    };
+interface DoencasData {
+    doencas: TipoDoenca[];
+    doencasField: string;
+    sugestoes: string[];
+    doencaSelecionada: TipoDoenca | null | undefined;
+    autosuggestTheme: any;
+}
+
+interface TipoDoenca {
+    idDoenca: number;
+    nome: string;
 }
 
 export default class InputCard extends React.Component<any, InputCardState> {
@@ -61,14 +58,54 @@ export default class InputCard extends React.Component<any, InputCardState> {
             tipoUsuario: TipoUsuario.MEDICO,
             senha: '',
             id: '',
-            CREMERS: ''
+            CREMERS: '',
+            closed: false,
+            doencasData: {
+                doencaSelecionada: null,
+                doencas: [{ idDoenca: 0, nome: '' }],
+                sugestoes: [],
+                doencasField: '',
+                autosuggestTheme: {
+                    input: 'autosuggest-input',
+                    container: 'autosuggest-container autosuggest-container-doenca',
+                    suggestionsContainer: 'autosuggest-suggest-container-hide',
+                    suggestion: 'autosuggest-suggestion'
+                }
+            }
         };
+        this.getDoencas();
         this.updateAddressList();
     }
 
     render() {
         return (
-            <div className='input-card-container'>
+            <div
+                className={`input-card-container ${
+                    this.state.closed ? 'input-card-hidden' : ''
+                }`}>
+                {this.state.closed ? (
+                    <div
+                        className='arrow'
+                        onClick={() =>
+                            this.setState({
+                                ...this.state,
+                                closed: false
+                            })
+                        }>
+                        <FontAwesomeIcon icon={faArrowRight} />
+                    </div>
+                ) : (
+                    <div
+                        className='arrow'
+                        onClick={() =>
+                            this.setState({
+                                ...this.state,
+                                closed: true
+                            })
+                        }>
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                    </div>
+                )}
                 <span className='input-card-title'>
                     Insira seus dados e sintomas abaixo para adicionar ao mapa
                 </span>
@@ -115,16 +152,138 @@ export default class InputCard extends React.Component<any, InputCardState> {
                         id={'1'}
                         theme={this.state.autosuggestThemeLocal}
                     />
+                    {this.fieldsComponent()}
                 </div>
             </div>
         );
     }
+
+    getSugestoesDoenca = (search: any) => {
+        console.log(search);
+        if (
+            search.reason === 'input-changed' &&
+            (!search.value || search.value.length === 0)
+        ) {
+            this.setState({
+                ...this.state,
+                doencasData: {
+                    ...this.state.doencasData,
+                    sugestoes: [],
+                    doencasField: search.value,
+                    autosuggestTheme: {
+                        ...this.state.doencasData.autosuggestTheme,
+                        suggestionsContainer:
+                            'autosuggest-suggest-container-hide'
+                    }
+                }
+            });
+        } else if (
+            !search.value &&
+            (search.value && search.value.length === 0)
+        ) {
+            this.setState({
+                ...this.state,
+                doencasData: {
+                    ...this.state.doencasData,
+                    sugestoes: [],
+                    doencasField: search.value
+                }
+            });
+        } else if (search.reason === 'suggestion-selected') {
+            this.setState({
+                ...this.state,
+                doencasData: {
+                    ...this.state.doencasData,
+                    sugestoes: [],
+                    doencasField: search.value,
+                    doencaSelecionada: this.state.doencasData.doencas.find(
+                        (item: TipoDoenca): boolean =>
+                            !!(item.nome === search.value)
+                    ),
+                    autosuggestTheme: {
+                        ...this.state.doencasData.autosuggestTheme,
+                        suggestionsContainer:
+                            'autosuggest-suggest-container-hide'
+                    }
+                }
+            });
+        } else if (search.reason === 'input-changed') {
+            let arraySugestoes: any = this.state.doencasData.doencas.filter(
+                (item: TipoDoenca) => item.nome.indexOf(search.value) !== -1
+            );
+            arraySugestoes = arraySugestoes.map(
+                (item: TipoDoenca) => item.nome
+            );
+            console.log(arraySugestoes);
+            this.setState({
+                ...this.state,
+                doencasData: {
+                    ...this.state.doencasData,
+                    sugestoes: arraySugestoes,
+                    doencasField: search.value,
+                    autosuggestTheme: {
+                        ...this.state.doencasData.autosuggestTheme,
+                        suggestionsContainer: 'autosuggest-suggest-container'
+                    }
+                }
+            });
+        }
+    };
+
+    getDoencas = () => {
+        fetch(routes.getDoencas)
+            .then((data) => data.json())
+            .then((arrayDoencas) => {
+                this.setState({
+                    ...this.state,
+                    doencasData: {
+                        ...this.state.doencasData,
+                        doencas: arrayDoencas,
+                        sugestoes: arrayDoencas.map(
+                            (item: TipoDoenca) => item.nome
+                        )
+                    }
+                });
+            });
+    };
 
     updateUser = (user: TipoUsuario) => {
         this.setState({
             ...this.state,
             tipoUsuario: user
         });
+    };
+
+    fieldsComponent = () => {
+        switch (this.state.tipoUsuario) {
+            case TipoUsuario.MEDICO:
+                return (
+                    <div>
+                        <span>Doença</span>
+                        <Autosuggest
+                            alwaysRenderSuggestions={true}
+                            suggestions={this.state.doencasData.sugestoes}
+                            onSuggestionsFetchRequested={
+                                this.getSugestoesDoenca
+                            }
+                            getSuggestionValue={(data: string) => data}
+                            renderSuggestion={(data: any) => (
+                                <span>{data}</span>
+                            )}
+                            inputProps={{
+                                value: this.state.doencasData.doencasField,
+                                onChange: this.getSugestoesDoenca
+                            }}
+                            id={'1'}
+                            theme={this.state.doencasData.autosuggestTheme}
+                        />
+                    </div>
+                );
+            case TipoUsuario.OMS:
+                return <div />;
+            default:
+                throw new Error('USER NOT DEFINED');
+        }
     };
 
     authComponent = () => {

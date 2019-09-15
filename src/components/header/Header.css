@@ -181,3 +181,47 @@
     width: 30px !important;
     color: black;
 }
+
+.autosuggest-container {
+    z-index: 100;
+    position: relative;
+    height: 40px;
+    width: 100%;
+}
+
+.autosuggest-suggest-container-hide {
+    display: none;
+}
+
+.autosuggest-input-header {
+    color: white;
+    width: 100%;
+    border: 0;
+    margin-top: 10px;
+    font-size: 20px;
+    border: 0;
+    background-color: transparent;
+}
+
+.autosuggest-input-header::placeholder {
+    color: #CCC;
+}
+
+.autosuggest-suggestion {
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.autosuggest-suggestion:hover {
+    background-color: #ccc;
+}
+
+.autosuggest-suggest-container {
+    background-color: white;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    border: 1px solid #ccc;
+    height: 240px;
+    overflow-y: auto;
+}

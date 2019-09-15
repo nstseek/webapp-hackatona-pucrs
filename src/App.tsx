@@ -4,7 +4,7 @@ import Header from './components/header/Header';
 import Map from './components/map/Map';
 import InputCard from './components/input-card/InputCard';
 
-interface AppState {
+export interface AppState {
     mapCoords: {
         lat: number;
         lng: number;
