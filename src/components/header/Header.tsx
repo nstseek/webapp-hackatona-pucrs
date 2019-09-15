@@ -1,15 +1,24 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeartbeat, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {
+    faHeartbeat,
+    faSearch,
+    faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 import { Input, Modal } from '@material-ui/core';
 import './Header.css';
 import { loadingIcon } from '../../types';
+import * as routes from '../../routes';
 
 interface HeaderState {
     searchField: string;
     isModalOpen: boolean;
-    isCadastro: boolean;
     isLoading: boolean;
+    usuario: {
+        nome: string;
+        CREMERS: string;
+        senha: string;
+    };
 }
 
 export default class Header extends React.Component<any, HeaderState> {
@@ -18,46 +27,12 @@ export default class Header extends React.Component<any, HeaderState> {
         this.state = {
             searchField: '',
             isModalOpen: false,
-            isCadastro: false,
-            isLoading: false
+            isLoading: false,
+            usuario: { nome: '', CREMERS: '', senha: '' }
         };
     }
 
     render() {
-        const cadastroComponent = {
-            cadastro: this.state.isCadastro ? (
-                <div className='modal-field-container'>
-                    <span className='field-title'>Nome</span>
-                    <Input
-                        className='modal-field'
-                        placeholder='Digite seu nome aqui'
-                    />
-                </div>
-            ) : (
-                ''
-            ),
-            botaoCadastro: !this.state.isCadastro ? (
-                <button className='modal-button' onClick={this.mostrarCadastro}>
-                    Criar conta
-                </button>
-            ) : (
-                ''
-            ),
-            botaoCadastrar: this.state.isCadastro ? (
-                <button className='modal-button' onClick={this.cadastrar}>
-                    Cadastrar
-                </button>
-            ) : (
-                ''
-            ),
-            botaoLogar: !this.state.isCadastro ? (
-                <button className='modal-button' onClick={this.entrar}>
-                    Entrar
-                </button>
-            ) : (
-                ''
-            )
-        };
         const loadingComponent = this.state.isLoading ? loadingIcon : '';
         return (
             <nav className='header'>
@@ -82,7 +57,7 @@ export default class Header extends React.Component<any, HeaderState> {
                 </div>
                 <div className='login-container'>
                     <button className='login-button' onClick={this.openModal}>
-                        Você é médico ou da OMS? Clique aqui
+                        Você é médico? Clique aqui
                     </button>
                     <Modal
                         aria-labelledby='Login'
@@ -91,22 +66,48 @@ export default class Header extends React.Component<any, HeaderState> {
                         onClose={this.closeModal}
                         className='modal-container'>
                         <div className='modal-card'>
-                            <div className='modal-title'>
-                                <span>Entre com suas credenciais</span>
+                            <div>
+                                <span>Crie sua conta</span>
                             </div>
-                            {cadastroComponent.cadastro}
-                            <div className='modal-field-container'>
-                                <span className='field-title'>CREMERS</span>
+                            <div className='margin-top-clear'>
+                                <span>CREMERS</span>
                                 <Input
-                                    className='modal-field'
-                                    placeholder='Digite seu CREMERS aqui'
+                                    placeholder='Digite seu número do CREMERS aqui'
+                                    onChange={(event: any) =>
+                                        this.updateCREMERS(event.target.value)
+                                    }
+                                    className='input'
+                                />
+                                <span>Nome</span>
+                                <Input
+                                    placeholder='Digite seu nome'
+                                    onChange={(event: any) =>
+                                        this.updateNome(event.target.value)
+                                    }
+                                    className='input'
+                                />
+                                <span>Senha</span>
+                                <Input
+                                    className='input'
+                                    placeholder='Crie uma senha'
+                                    onChange={(event: any) =>
+                                        this.updateSenha(event.target.value)
+                                    }
                                 />
                             </div>
-                            <div className='modal-buttons'>
-                                {cadastroComponent.botaoLogar}
-                                {cadastroComponent.botaoCadastro}
-                                {cadastroComponent.botaoCadastrar}
-                            </div>
+                            {this.state.isLoading ? (
+                                <FontAwesomeIcon
+                                    icon={faSpinner}
+                                    className='loading-icon-signup fa-spin'
+                                />
+                            ) : (
+                                ''
+                            )}
+                            <button
+                                className='modal-button margin-top-clear'
+                                onClick={this.cadastrar}>
+                                Cadastrar
+                            </button>
                         </div>
                     </Modal>
                 </div>
@@ -115,24 +116,33 @@ export default class Header extends React.Component<any, HeaderState> {
         );
     }
 
-    entrar = async () => {
+    updateSenha = (senha: string) => {
         this.setState({
             ...this.state,
-            isLoading: true
+            usuario: {
+                ...this.state.usuario,
+                senha
+            }
         });
-        let result = await fetch('/');
-        // result = await result.json();
-        this.setState({
-            ...this.state,
-            isLoading: false
-        });
-        this.closeModal();
     };
 
-    mostrarCadastro = () => {
+    updateNome = (nome: string) => {
         this.setState({
             ...this.state,
-            isCadastro: true
+            usuario: {
+                ...this.state.usuario,
+                nome
+            }
+        });
+    };
+
+    updateCREMERS = (CREMERS: string) => {
+        this.setState({
+            ...this.state,
+            usuario: {
+                ...this.state.usuario,
+                CREMERS
+            }
         });
     };
 
@@ -141,7 +151,7 @@ export default class Header extends React.Component<any, HeaderState> {
             ...this.state,
             isLoading: true
         });
-        let result: any = await fetch('/');
+        let result: any = await fetch(routes.epidemiaRoute);
         // result = await result.json();
         this.setState({
             ...this.state,
@@ -152,6 +162,7 @@ export default class Header extends React.Component<any, HeaderState> {
 
     setSearchField = (event: any) => {
         this.setState({
+            ...this.state,
             searchField: event.target.value
         });
     };
@@ -170,8 +181,7 @@ export default class Header extends React.Component<any, HeaderState> {
     closeModal = () => {
         this.setState({
             ...this.state,
-            isModalOpen: false,
-            isCadastro: false
+            isModalOpen: false
         });
     };
 }

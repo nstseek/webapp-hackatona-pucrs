@@ -11,10 +11,12 @@ const mapsKey = {
     region: 'br'
 };
 
-const startingPointMap = {
-    lat: -30.056185,
-    lng: -51.172118
-};
+interface MapProps {
+    mapCoords: {
+        lat: number;
+        lng: number;
+    };
+}
 
 interface MapState {
     epidemias: Epidemia[];
@@ -34,9 +36,16 @@ enum TipoEpidemia {
     POSSIVEL_EPIDEMIA
 }
 
-export default class Map extends React.Component<any, MapState> {
+export default class Map extends React.Component<MapProps, MapState> {
+    lat: number;
+    lng: number;
+    mapDidMove: boolean;
+
     constructor(props: any) {
         super(props);
+        this.lat = this.props.mapCoords.lat;
+        this.lng = this.props.mapCoords.lng;
+        this.mapDidMove = true;
         this.state = {
             epidemias: [],
             isLoading: false
@@ -54,7 +63,10 @@ export default class Map extends React.Component<any, MapState> {
                 <GoogleMapReact
                     bootstrapURLKeys={mapsKey}
                     defaultZoom={15}
-                    defaultCenter={startingPointMap}>
+                    defaultCenter={{ lat: this.lat, lng: this.lng }}
+                    onDrag={(map: any) => {
+                        this.updateLatLng(map.center.lat(), map.center.lng());
+                    }}>
                     {/* colocar um for fudido */}
                     <Marker
                         lat={-30.056185}
@@ -68,17 +80,20 @@ export default class Map extends React.Component<any, MapState> {
         );
     }
 
+    updateLatLng = (lat: number, lng: number) => {
+        this.lat = lat;
+        this.lng = lng;
+        this.mapDidMove = true;
+    };
+
     getEpidemias = async () => {
-        this.setState({
-            ...this.state,
-            isLoading: true
-        });
-        console.log('getEpidemias chamado');
-        let result: any = await fetch(routes.epidemiaRoute);
-        this.setState({
-            ...this.state,
-            epidemias: result,
-            isLoading: false
-        });
+        if (this.mapDidMove) {
+            console.log(this.lat, this.lng);
+            this.mapDidMove = false;
+            console.log('getEpidemias chamado');
+            let result: any = await fetch(routes.epidemiaRoute);
+            // enviar this.lat e this.lng
+        }
+        setTimeout(this.getEpidemias, 1000);
     };
 }
