@@ -1,0 +1,67 @@
+.input-card-container {
+    position: fixed;
+    bottom: 10vh;
+    left: 3vw;
+    display: flex;
+    height: 70vh;
+    width: 25vw;
+    overflow-y: scroll;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.autosuggest-container {
+    position:relative;
+    height: 40px;
+}
+
+.autosuggest-suggest-container-hide {
+    display: none;
+}
+
+.autosuggest-input {
+    width: 100%;
+    border: 0;
+    margin-top: 10px;
+    font-size: 20px;
+    border-bottom: 1px solid black;
+}
+
+.autosuggest-suggestion {
+    border-bottom: 1px solid #CCC;
+    cursor: pointer;
+}
+
+.autosuggest-suggestion:hover {
+    background-color: #CCC;
+}
+
+.autosuggest-suggest-container {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    border: 1px solid #CCC;
+}
+
+.input-field {
+    width: 100%;
+}
+
+.input-card-title {
+    margin-bottom: 50px;
+    font-weight: 600;
+}
+
+li {
+    list-style-type: none;
+    padding: 5px;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}

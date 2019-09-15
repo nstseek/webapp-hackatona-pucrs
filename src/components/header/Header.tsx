@@ -12,7 +12,7 @@ interface HeaderState {
     isLoading: boolean;
 }
 
-export default class Header extends React.Component<null, HeaderState> {
+export default class Header extends React.Component<any, HeaderState> {
     constructor(props: any) {
         super(props);
         this.state = {
