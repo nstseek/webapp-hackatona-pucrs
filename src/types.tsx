@@ -13,7 +13,7 @@ export const loadingIcon = (
     </div>
 );
 
-export const LocationIqKey = `d6514e1895bd6c`;
+export const LocationIqKey = `d6514e1895bd6c`; // free api key, entao eu nao me preocupei com seguranca
 export const LocationIqURI = (search: string) =>
     `https://us1.locationiq.com/v1/search.php?key=${encodeURIComponent(
         LocationIqKey
