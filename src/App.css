@@ -1,0 +1,7 @@
+.info {
+    position: fixed;
+    bottom: 20px;
+    left: 50vw;
+    opacity: 0.7;
+    color: black;
+}

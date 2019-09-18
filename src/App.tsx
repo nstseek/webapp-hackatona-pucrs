@@ -12,7 +12,7 @@ export interface AppState {
         lng: number;
     };
     doencasEpidemias: EpidemiaDoenca[];
-    doencas: TipoDoenca[]
+    doencas: TipoDoenca[];
 }
 
 const startingPointMap = {
@@ -36,6 +36,10 @@ export default class App extends React.Component<{}, AppState> {
     render() {
         return (
             <div className='App'>
+                <h4 className='info'>
+                    Esse site não está conectado com o back-end nem possui uma API key pro Google Maps, funciona apenas
+                    para demonstracão
+                </h4>
                 <Header setMapCoords={this.setMapCoords} />
                 <Map
                     setMapCoords={this.setMapCoords}
@@ -43,8 +47,12 @@ export default class App extends React.Component<{}, AppState> {
                     setDoencasEpidemias={this.setDoencasEpidemias}
                     doencas={this.state.doencas}
                 />
-                <InputCard setTipoDoenca={this.setTipoDoenca}/>
-                <InfoCard mapCoords={this.state.mapCoords} doencas={this.state.doencas} doencasEpidemias={this.state.doencasEpidemias} />
+                <InputCard setTipoDoenca={this.setTipoDoenca} />
+                <InfoCard
+                    mapCoords={this.state.mapCoords}
+                    doencas={this.state.doencas}
+                    doencasEpidemias={this.state.doencasEpidemias}
+                />
             </div>
         );
     }
@@ -53,8 +61,8 @@ export default class App extends React.Component<{}, AppState> {
         this.setState({
             ...this.state,
             doencas
-        })
-    }
+        });
+    };
 
     setDoencasEpidemias = (doencasEpidemias: EpidemiaDoenca[]) => {
         console.log(doencasEpidemias);

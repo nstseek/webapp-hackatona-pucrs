@@ -3,7 +3,8 @@
     bottom: 10vh;
     left: 3vw;
     display: flex;
-    height: 70vh;
+    height: 65vh;
+    overflow-y: auto;
     width: 25vw;
     flex-direction: column;
     justify-content: flex-start;
