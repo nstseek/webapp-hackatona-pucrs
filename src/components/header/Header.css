@@ -1,6 +1,7 @@
 .header {
     background-color: #24b54b;
     height: 10vh;
+    min-height: max-content;
     width: 100%;
     display: flex;
     flex-direction: row;
