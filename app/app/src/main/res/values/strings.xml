@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Epidemia</string>
+    <string name="add_sintoma">+</string>
+    <string name="botao_pronto">Pronto!</string>
+    <string name="sintoma_pergunta">O que você está sentindo?</string>
+    <string name="ex_sintoma">Ex: Gripe</string>
+    <string name="lista_sintomas">Sintomas adicionados:</string>
+    <string name="sintoma">Sintoma</string>
+    <string name="riscos">Riscos na sua área!</string>
+    <string name="titulo_resultado">Seu pré-diagnóstico é:</string>
+</resources>

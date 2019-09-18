@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "noEmitOnError": true,
+        "removeComments": true,
+        "noImplicitAny": true,
+        "target": "es3",
+        "outDir": "build/"
+    },
+    "include": [
+        "app/"
+    ]
+}
